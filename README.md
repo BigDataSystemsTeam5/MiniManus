@@ -3,6 +3,8 @@ An AI Research Assistant
 
 # 📊 NVIDIA Multi-Agent Research Assistant
 
+Codelab: https://bigdatasystemsteam5.github.io/MiniManus/#0
+
 This project is a multi-agent Research Assistant that intelligently consolidates **structured**, **unstructured**, and **real-time** data using:
 
 - **Snowflake** (Valuation Measures)

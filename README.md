@@ -15,7 +15,7 @@ It is built using **LangGraph**, **FastAPI**, and **Streamlit**, and deployed us
 
 ---
 
-## 🚀 Features
+## 🚀 Features.
 
 - 🔍 **Ask NVIDIA research questions**
 - 📅 **Filter responses by Year & Quarter**

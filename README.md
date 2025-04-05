@@ -117,7 +117,7 @@ docker-compose up --build
 
 ## 🔗 Deployed Application
 
-> 🌐 [Live App]([http://3.130.104.76:8501])
+> 🌐 http://3.130.104.76:8501
 
 ---
 

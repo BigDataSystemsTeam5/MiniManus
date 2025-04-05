@@ -74,7 +74,7 @@ graph TD
 docker-compose up --build
 ```
 
-> App will be accessible at: `http://localhost:8501`
+> App will be accessible at: `[http://localhost:8501](http://3.130.104.76:8501)`
 
 ---
 
@@ -117,7 +117,7 @@ docker-compose up --build
 
 ## 🔗 Deployed Application
 
-> 🌐 [Live App](https://your-deployment-link.com)
+> 🌐 [Live App]([https://your-deployment-link.com](http://3.130.104.76:8501))
 
 ---
 

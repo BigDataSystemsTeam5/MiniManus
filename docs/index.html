@@ -1,0 +1,207 @@
+
+<!doctype html>
+
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+  <meta name="theme-color" content="#4F7DC9">
+  <meta charset="UTF-8">
+  <title>🧠 MiniManus: AI Research Assistant – Codelab</title>
+  <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Source+Code+Pro:400|Roboto:400,300,400italic,500,700|Roboto+Mono">
+  <link rel="stylesheet" href="//fonts.googleapis.com/icon?family=Material+Icons">
+  <link rel="stylesheet" href="https://storage.googleapis.com/claat-public/codelab-elements.css">
+  <style>
+    .success {
+      color: #1e8e3e;
+    }
+    .error {
+      color: red;
+    }
+  </style>
+</head>
+<body>
+  <google-codelab-analytics gaid="UA-49880327-14"></google-codelab-analytics>
+  <google-codelab codelab-gaid=""
+                  id="mini-manus-codelab"
+                  title="🧠 MiniManus: AI Research Assistant – Codelab"
+                  environment="web"
+                  feedback-link="">
+    
+      <google-codelab-step label="🔧 Step-by-Step: How We Built It" duration="0">
+        <h2 is-upgraded>✅ Step 1: Define the Problem</h2>
+<p>We aimed to build a research assistant that answers natural language questions on NVIDIA&#39;s quarterly performance using both:</p>
+<ul>
+<li><strong>Unstructured data</strong> (PDF reports)</li>
+<li><strong>Structured data</strong> (Snowflake financial tables)</li>
+<li><strong>Real-time information</strong> (web searches)</li>
+</ul>
+<h2 is-upgraded>✅ Step 2: Project Structure &amp; Setup</h2>
+<p>We organized the project with a clean modular structure:</p>
+<pre><code>MiniManus/
+├── data_processing/            # Extract text from PDFs
+├── mini_manus_ai/             # Agent logic + LangGraph orchestration
+├── backend/                   # FastAPI app for agents
+├── frontend/                  # Streamlit frontend
+├── prototyping/               # Experiments
+├── docker-compose.yml
+├── Dockerfile
+└── README.md
+</code></pre>
+<p>We also added:</p>
+<ul>
+<li><code>.env</code> for API keys and Snowflake creds</li>
+<li><code>requirements.txt</code> for reproducible setup</li>
+</ul>
+<h2 is-upgraded>✅ Step 3: PDF Ingestion + Pinecone Setup</h2>
+<p>We built a <strong>data pipeline</strong> to:</p>
+<ol type="1">
+<li>Read quarterly NVIDIA PDFs using <strong>PyMuPDF</strong></li>
+<li>Chunk and clean the text</li>
+<li>Generate OpenAI embeddings</li>
+<li>Upload embeddings to Pinecone with metadata (<code>year</code>, <code>quarter</code>)</li>
+</ol>
+<p>📁 Files involved:</p>
+<ul>
+<li><code>data_processing/parser.py</code></li>
+<li><code>data_processing/ingest_to_pinecone.py</code></li>
+</ul>
+<h2 is-upgraded>✅ Step 4: Implement RAG Agent</h2>
+<p>This agent:</p>
+<ul>
+<li>Accepts a <code>question</code>, <code>year</code>, and <code>quarter</code></li>
+<li>Filters Pinecone index by metadata</li>
+<li>Uses OpenAI to generate answers using retrieved chunks</li>
+</ul>
+<p>📁 <code>mini_manus_ai/rag_agent.py</code></p>
+<h2 is-upgraded>✅ Step 5: Implement Snowflake Agent</h2>
+<p>We created a connector to:</p>
+<ul>
+<li>Authenticate with Snowflake</li>
+<li>Run SQL queries based on <code>year</code> and <code>quarter</code></li>
+<li>Return financial KPIs</li>
+</ul>
+<p>📁 <code>mini_manus_ai/snowflake_agent.py</code></p>
+<h2 is-upgraded>✅ Step 6: Implement Web Agent</h2>
+<p>To retrieve live industry news:</p>
+<ul>
+<li>We integrated <strong>SerpAPI</strong></li>
+<li>Sent query based on the question</li>
+<li>Retrieved top headlines/snippets</li>
+</ul>
+<p>📁 <code>mini_manus_ai/web_search_agent.py</code></p>
+<h2 is-upgraded>✅ Step 7: Build Agent Orchestration with LangGraph</h2>
+<p>We used <strong>LangGraph</strong> to:</p>
+<ul>
+<li>Combine outputs from RAG, Snowflake, and Web agents</li>
+<li>Handle async, routing, and output formatting</li>
+</ul>
+<p>📁 <code>mini_manus_ai/multi_agent_graph.py</code></p>
+<h2 is-upgraded>✅ Step 8: Build FastAPI Backend</h2>
+<p>The backend:</p>
+<ul>
+<li>Accepts <code>/query</code> via GET and POST</li>
+<li>Parses inputs (question, year, quarter)</li>
+<li>Calls LangGraph pipeline</li>
+<li>Returns the complete answer + agent breakdown</li>
+</ul>
+<p>📁 <code>backend/api.py</code></p>
+<h2 is-upgraded>✅ Step 9: Build Streamlit Frontend</h2>
+<p>The frontend:</p>
+<ul>
+<li>Allows uploading reports</li>
+<li>Lets users enter a question + filters</li>
+<li>Calls FastAPI and renders results from all agents</li>
+</ul>
+<p>📁 <code>frontend/streamlit_app.py</code></p>
+<h2 is-upgraded>✅ Step 10: Containerize with Docker</h2>
+<p>We created a <strong>Dockerfile</strong> and <strong>docker-compose.yml</strong> to:</p>
+<ul>
+<li>Package frontend, backend, and agent layers</li>
+<li>Enable deployment with a single command</li>
+</ul>
+<pre><code language="language-bash" class="language-bash">docker-compose up --build
+</code></pre>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="✅ Final Result" duration="0">
+        <ul>
+<li>Users can ask questions like:<br><em>&#34;How did NVIDIA perform in Q2 2023?&#34;</em></li>
+<li>The system responds with: <ul>
+<li>RAG-based summary from PDFs</li>
+<li>KPIs from Snowflake</li>
+<li>Latest news via SerpAPI</li>
+</ul>
+</li>
+<li>All outputs are visible in Streamlit UI</li>
+</ul>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="🚀 Tools Used" duration="0">
+        <table>
+<tr><td colspan="1" rowspan="1"><p>Tool</p>
+</td><td colspan="1" rowspan="1"><p>Purpose</p>
+</td></tr>
+<tr><td colspan="1" rowspan="1"><p>Pinecone</p>
+</td><td colspan="1" rowspan="1"><p>Vector DB for RAG agent</p>
+</td></tr>
+<tr><td colspan="1" rowspan="1"><p>Snowflake</p>
+</td><td colspan="1" rowspan="1"><p>Financial data warehouse</p>
+</td></tr>
+<tr><td colspan="1" rowspan="1"><p>OpenAI</p>
+</td><td colspan="1" rowspan="1"><p>Text + image generation (GPT-4o)</p>
+</td></tr>
+<tr><td colspan="1" rowspan="1"><p>SerpAPI</p>
+</td><td colspan="1" rowspan="1"><p>Web search results</p>
+</td></tr>
+<tr><td colspan="1" rowspan="1"><p>FastAPI</p>
+</td><td colspan="1" rowspan="1"><p>Backend REST API</p>
+</td></tr>
+<tr><td colspan="1" rowspan="1"><p>Streamlit</p>
+</td><td colspan="1" rowspan="1"><p>Frontend UI</p>
+</td></tr>
+<tr><td colspan="1" rowspan="1"><p>Docker</p>
+</td><td colspan="1" rowspan="1"><p>Containerized deployment</p>
+</td></tr>
+<tr><td colspan="1" rowspan="1"><p>LangGraph</p>
+</td><td colspan="1" rowspan="1"><p>Agent coordination framework</p>
+</td></tr>
+</table>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="🌱 Future Work" duration="0">
+        <ul>
+<li>Add charts with Plotly/Altair</li>
+<li>Export report as PDF</li>
+<li>Add model comparison and trend analytics</li>
+<li>Improve agent reasoning with tool memory</li>
+</ul>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="👥 Contributors" duration="0">
+        <ul>
+<li><strong>Pratik Kanade</strong> – Snowflake + LangGraph orchestration</li>
+<li><strong>Asavari Shejwal</strong> – Pinecone RAG + Streamlit UI</li>
+<li><strong>Hishita Thakkar</strong> – Web Agent + FastAPI integration</li>
+</ul>
+
+
+      </google-codelab-step>
+    
+  </google-codelab>
+
+  <script src="https://storage.googleapis.com/claat-public/native-shim.js"></script>
+  <script src="https://storage.googleapis.com/claat-public/custom-elements.min.js"></script>
+  <script src="https://storage.googleapis.com/claat-public/prettify.js"></script>
+  <script src="https://storage.googleapis.com/claat-public/codelab-elements.js"></script>
+  <script src="//support.google.com/inapp/api.js"></script>
+
+</body>
+</html>

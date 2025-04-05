@@ -12,7 +12,7 @@ from langchain_core.agents import AgentAction
 load_dotenv(r'C:\Users\Admin\Desktop\MS Data Architecture and Management\DAMG 7245 - Big Data Systems and Intelligence Analytics\Assignment 5 A\environment\access.env')
 
 
-system_prompt = """You are mini_manus, the great AI research assistant.
+system_prompt = """You are Mini Manus, the great AI research assistant.
 Given the user's query you must write a research report with it based on the
 list of tools provided to you.
 

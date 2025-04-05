@@ -1,25 +1,24 @@
 from dotenv import load_dotenv
 from chunking_evaluation.chunking import RecursiveTokenChunker
-import os
 import json
 from sentence_transformers import SentenceTransformer
 import tiktoken
-import numpy as np
-import pandas as pd
-#from chromadb.utils import embedding_functions
 from chunking_evaluation.utils import openai_token_count
+from logger_code import get_logger
 
 
 load_dotenv(r'environment\access.env')
 
+chunk_analyse_logger = get_logger("chunk_analyze", "chunk_analyze.log")
+chunk_embed_logger = get_logger("chunk_embed", "chunk_embed.log")
+
 def embed_chunks(chunks):
 
     # Embedding settings
-    EMBEDDING_MODEL = "all-MiniLM-L6-v2"
+    embedding_model = "all-MiniLM-L6-v2"
 
     # Initialize the embedding model
-    embedding_model = SentenceTransformer(EMBEDDING_MODEL)
-
+    embedding_model = SentenceTransformer(embedding_model)
     embeddings = embedding_model.encode(chunks)
 
     return embeddings
@@ -36,27 +35,27 @@ def analyze_chunks(chunks, use_tokens=False):
         use_tokens: Whether to analyze overlap by tokens instead of characters
     """
     # Print basic stats
-    print("\nNumber of Chunks:", len(chunks))
+    chunk_analyse_logger.info("\nNumber of Chunks:", len(chunks))
     
     # Show examples of chunks
     if len(chunks) >= 2:
-        print("\n", "="*50, f"Chunk #{len(chunks)//3}", "="*50)
-        print(chunks[len(chunks)//3])
-        print("\n", "="*50, f"Chunk #{2*len(chunks)//3}", "="*50)
-        print(chunks[2*len(chunks)//3])
+        chunk_analyse_logger.info("\n", "="*50, f"Chunk #{len(chunks)//3}", "="*50)
+        chunk_analyse_logger.info(chunks[len(chunks)//3])
+        chunk_analyse_logger.info("\n", "="*50, f"Chunk #{2*len(chunks)//3}", "="*50)
+        chunk_analyse_logger.info(chunks[2*len(chunks)//3])
     
     # Calculate average chunk size
     if use_tokens:
         encoding = tiktoken.get_encoding("cl100k_base")
         chunk_sizes = [len(encoding.encode(chunk)) for chunk in chunks]
-        print(f"\nAverage chunk size: {sum(chunk_sizes)/len(chunk_sizes):.1f} tokens")
-        print(f"Min chunk size: {min(chunk_sizes)} tokens")
-        print(f"Max chunk size: {max(chunk_sizes)} tokens")
+        chunk_analyse_logger.info(f"\nAverage chunk size: {sum(chunk_sizes)/len(chunk_sizes):.1f} tokens")
+        chunk_analyse_logger.info(f"Min chunk size: {min(chunk_sizes)} tokens")
+        chunk_analyse_logger.info(f"Max chunk size: {max(chunk_sizes)} tokens")
     else:
         chunk_sizes = [len(chunk) for chunk in chunks]
-        print(f"\nAverage chunk size: {sum(chunk_sizes)/len(chunk_sizes):.1f} characters")
-        print(f"Min chunk size: {min(chunk_sizes)} characters")
-        print(f"Max chunk size: {max(chunk_sizes)} characters")
+        chunk_analyse_logger.info(f"\nAverage chunk size: {sum(chunk_sizes)/len(chunk_sizes):.1f} characters")
+        chunk_analyse_logger.info(f"Min chunk size: {min(chunk_sizes)} characters")
+        chunk_analyse_logger.info(f"Max chunk size: {max(chunk_sizes)} characters")
     
     # Find overlaps if there are at least two chunks
     if len(chunks) >= 2:
@@ -71,16 +70,16 @@ def analyze_chunks(chunks, use_tokens=False):
             for i in range(min(len(tokens1), 50), 0, -1):
                 if tokens1[-i:] == tokens2[:i]:
                     overlap = encoding.decode(tokens1[-i:])
-                    print("\n", "="*50, f"\nOverlapping text ({i} tokens):", overlap)
+                    chunk_analyse_logger.info("\n", "="*50, f"\nOverlapping text ({i} tokens):", overlap)
                     return
-            print("\nNo token overlap found")
+            chunk_analyse_logger.info("\nNo token overlap found")
         else:
             # Find overlapping characters
             for i in range(min(len(chunk1), 200), 0, -1):
                 if chunk1[-i:] == chunk2[:i]:
-                    print("\n", "="*50, f"\nOverlapping text ({i} chars):", chunk1[-i:])
+                    chunk_analyse_logger.info("\n", "="*50, f"\nOverlapping text ({i} chars):", chunk1[-i:])
                     return
-            print("\nNo character overlap found")
+            chunk_analyse_logger.info("\nNo character overlap found")
 
 
 
@@ -127,7 +126,7 @@ def save_chunks_to_json(chunks, strategy_name, year, quarter, output_dir="chunk_
         }
 
         chunks_data.append(chunk_info)
-        print(f"Chunk ID {i} is embedded and appended to JSON")
+        chunk_embed_logger.info(f"Chunk ID {i} is embedded and appended to JSON")
 
     
     # Save to JSON file
@@ -152,7 +151,7 @@ def chunking_embedding_strategy(document, year, quarter):
     # Get the total token count
     encoding = tiktoken.get_encoding("cl100k_base")
     tokens = encoding.encode(document)
-    print(f"Total document length: {len(tokens)} tokens")
+    chunk_embed_logger.info(f"Total document length: {len(tokens)} tokens")
 
 
     # Set up output directory for recursive chunking
@@ -169,7 +168,7 @@ def chunking_embedding_strategy(document, year, quarter):
 
     recursive_token_overlap_chunks = recursive_token_overlap_chunker.split_text(document)
 
-    #analyze_chunks(recursive_token_overlap_chunks, use_tokens=True)
+    analyze_chunks(recursive_token_overlap_chunks, use_tokens=True)
 
     # Save overlap chunks to JSON
     result = save_chunks_to_json(recursive_token_overlap_chunks,  f"{strategy_name}_with_overlap",  year, quarter)

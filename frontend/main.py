@@ -30,4 +30,4 @@ if st.button("Get the Reasearch Report") and question:
     params = {"question": question, "agents_names": agents_names, "years_quarters": years_quarters}
     response = requests.get(f"{API_BASE_URL}/ask_question", params=params)
 
-    st.write(response)
+    st.write(response.json())

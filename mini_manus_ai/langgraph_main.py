@@ -11,7 +11,7 @@ from IPython.display import Image
 
 
 
-def mini_manus_main(question, agents, years, quarters):
+def mini_manus_main(question, agents, years_quarters):
     graph = StateGraph(AgentState)
 
     graph.add_node("mini_manus", run_mini_manus)
@@ -45,15 +45,16 @@ def mini_manus_main(question, agents, years, quarters):
 
     runnable = graph.compile()
 
-    Image(runnable.get_graph().draw_png())
+    #Image(runnable.get_graph().draw_png())
 
     out = runnable.invoke({
-        "input": f"""A list of years and quarters is provided. Years: {years}, Quarters: {quarters}. 
-        Give response to the question: {question} about NVIDIA. The response should be related solely to 
-        the information of the years and quarters provided. A list of tools is provided: {agents}. You are 
-        allowed to use the tools mentioned in this list. Do NOT use any other tools. The mentioned tools 
-        should be used to get information for all the years and quarters mentioned in the years and quarters 
-        lists.""",
+        "input": f"""A string list of years and quarters is provided: {years_quarters}. The year and quarter is
+        separated by a space ( ). The year is mentioned before the space. There is an alphabet Q after space 
+        indicatng quarter. The quarter is mentioned after this alphabet Q. Give response to the 
+        question: {question} about NVIDIA. The response should be related solely to the information of the 
+        years and quarters provided. A string list of tools is provided: {agents}. You are allowed to use the 
+        tools mentioned in this list. Do NOT use any other tools. The mentioned tools should be used to get 
+        information for all the years and quarters mentioned in the years and quarters lists.""",
         "chat_history": [],
     })
 

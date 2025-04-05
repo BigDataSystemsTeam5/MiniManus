@@ -1,4 +1,3 @@
-import os
 import tempfile
 from docling.document_converter import DocumentConverter
 

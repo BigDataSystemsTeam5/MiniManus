@@ -7,7 +7,7 @@ This project is a multi-agent Research Assistant that intelligently consolidates
 
 - **Snowflake** (Valuation Measures)
 - **RAG pipeline with Pinecone** (Quarterly NVIDIA Reports)
-- **Web Search APIs** (SerpAPI/Tavily)
+- **Web Search APIs** (SerpAPI)
 
 It is built using **LangGraph**, **FastAPI**, and **Streamlit**, and deployed using **Docker**.
 

@@ -1,17 +1,18 @@
 from http.client import HTTPException
-from fastapi import FastAPI
+from typing import List
+from fastapi import FastAPI, Query
 from langgraph_main import mini_manus_main
 
 
 app = FastAPI()
 
 @app.get("/ask_question")
-async def ask_question(question: str, agents_names: str, years_quarters: str):
+async def ask_question(question: str, agents_names: List[str] = Query(None), years_quarters: List[str] = Query(None)):
 
     try:
         agents = ["final_answer"]
-        year = []
-        quarter = []
+        #year = []
+        #quarter = []
 
         for agent_name in agents_names:
             if agent_name == 'RAG Agent':
@@ -24,12 +25,13 @@ async def ask_question(question: str, agents_names: str, years_quarters: str):
                 agent = "web_search"
                 agents.append(agent)
 
-        for year_quarter in years_quarters:
-            year_only, quarter_only = year_quarter.split(" Q")
-            year.append(int(year_only))
-            quarter.append(int(quarter_only))
+        #for year_quarter in years_quarters:
 
-        result = mini_manus_main(question, agents, year, quarter)
+        #    year_only, quarter_only = year_quarter.split(" Q")
+        #    year.append(int(year_only))
+        #    quarter.append(int(quarter_only))
+
+        result = mini_manus_main(question, agents, years_quarters)
     
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error returning a response: {str(e)}")

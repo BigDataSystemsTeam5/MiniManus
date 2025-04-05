@@ -1,13 +1,19 @@
-from io import BytesIO
 import os
 import boto3
 from dotenv import load_dotenv
+from logger_code import get_logger
 from docling_markdown import convert_and_save_document
 from pinecone_upsert import upsert_pinecone
 from chunking_embedding import chunking_embedding_strategy
 
-
 bucket_name = "bigdatasystems2"
+
+# Create separate loggers for each ETL process
+s3_files_logger = get_logger("s3_files", "s3_files.log")
+docling_markdown_logger = get_logger("docling_markdown", "docling_markdown.log")
+chunk_analyse_logger = get_logger("chunk_analyze", "chunk_analyze.log")
+chunk_embed_logger = get_logger("chunk_embed", "chunk_embed.log")
+pinecone_upsert_logger = get_logger("pinecone_upsert", "pinecone_upsert.log")
 
 def get_s3_client():
 
@@ -28,34 +34,36 @@ def get_s3_client():
 years = ['2024', '2023', '2022', '2021', '2020']
 quarters = ['1', '2', '3', '4']
 
+s3_files_logger.info("Pipeline execution started.")
+
 for year in years:
     for quarter in quarters:
 
         filepath = f'NVIDIAFiles/{year}/NVIDIA_{year}_{quarter}.pdf'
         filename = f'NVIDIA_{year}_{quarter}.pdf'
-        print(f'Fetching the file: {filename}')
+        s3_files_logger.info(f'Fetching the file: {filename}')
 
         try:
             s3_client = get_s3_client()
             response = s3_client.get_object(Bucket=bucket_name, Key=filepath)
             file = response['Body'].read()
 
-            print(f"Retrieved the file: {filename}")
+            s3_files_logger.info(f"Retrieved the file: {filename}")
 
         except Exception as e:
-            print(f"Error retrieving file: {str(e)}")
+            s3_files_logger.error(f"Error retrieving file: {str(e)}")
 
-        print(f'Starting markdown conversion for file: {filename}')
+        docling_markdown_logger.info(f'Starting markdown conversion for file: {filename}')
         markdown_file = convert_and_save_document(file)
-        print(f'Markdown conversion finished for file: {filename}')
+        docling_markdown_logger.info(f'Markdown conversion finished for file: {filename}')
 
-        print(f'Starting chunking and embedding for file: {filename}')
+        chunk_embed_logger.info(f'Starting chunking and embedding for file: {filename}')
         embed_json = chunking_embedding_strategy(markdown_file, year, quarter)
-        print(f'Finished chunking and embedding for file: {filename}')
+        chunk_embed_logger.info(f'Finished chunking and embedding for file: {filename}')
 
         result = upsert_pinecone(embed_json, year, quarter)
-        print('The chuncks are upserted to Pinecone along with its metadata. The statistics are:')
-        print(result)
+        pinecone_upsert_logger.info(f'The chuncks are upserted to Pinecone along with its metadata. The statistics are: {result}')
 
+s3_files_logger.info("Pipeline execution completed.")
     
 

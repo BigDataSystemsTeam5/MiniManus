@@ -17,7 +17,7 @@ def upsert_pinecone(embed_json, year, quarter):
     data = json.loads(embed_json)
 
     # Delete a index
-    pc.delete_index(name="rag-index")
+    #pc.delete_index(name="rag-index")
 
     # Create a index with integrated embedding
     index_name = "rag-index"
@@ -32,7 +32,7 @@ def upsert_pinecone(embed_json, year, quarter):
             )
         )
 
-    print(f'The list of indices in Pinecone Database: {pc.list_indexes()}')
+    #print(f'The list of indices in Pinecone Database: {pc.list_indexes()}')
 
     index = pc.Index(index_name)
 

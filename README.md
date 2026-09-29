@@ -1,5 +1,5 @@
 # MiniManus
-An AI Research Assistant
+An AI Research Assistant.
 
 # 📊 NVIDIA Multi-Agent Research Assistant
 
